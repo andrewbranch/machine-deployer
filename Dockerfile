@@ -20,9 +20,10 @@ RUN curl -L https://github.com/docker/machine/releases/download/v0.8.2/docker-ma
 # Install machine-share
 RUN npm install --global andrewbranch/machine-share
 
-RUN mkdir -p /var/work
 RUN /bin/bash -c "mkdir -p $HOME/.docker/machine/{machines,certs}"
-WORKDIR /var/work
+ENV WORKDIR /var/work
+RUN mkdir -p $WORKDIR
+WORKDIR $WORKDIR
 COPY functions.sh functions.sh
 COPY .env .env
 COPY *.key ./
