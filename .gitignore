@@ -2,3 +2,4 @@
 *.pem
 *_rsa
 .env
+node_modules

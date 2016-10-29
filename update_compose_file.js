@@ -1,4 +1,4 @@
-#!/usr/bin/env/node
+#!/usr/bin/node
 
 const write = require('write-yaml');
 const read = require('read-yaml');

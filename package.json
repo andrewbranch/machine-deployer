@@ -1,0 +1,19 @@
+{
+  "name": "machine-deployer",
+  "version": "1.0.0",
+  "description": "Docker image for managing other docker-machines",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewbranch/machine-deployer.git"
+  },
+  "author": "Andrew Branch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andrewbranch/machine-deployer/issues"
+  },
+  "homepage": "https://github.com/andrewbranch/machine-deployer#readme",
+  "dependencies": {
+    "read-yaml": "^1.0.0",
+    "write-yaml": "^0.2.2"
+  }
+}

@@ -6,10 +6,11 @@ MAINTAINER Andrew Branch <andrew@wheream.io>
 RUN apt-get update && apt-get install -y \
   curl \
   git \
-  nodejs \
-  npm \
-  ssh-client \
-  && ln -s `which nodejs` /usr/bin/node
+  ssh-client
+
+# Update Node source and install
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash - && \
+  apt-get install -y nodejs
 
 # Install docker-machine and docker-compose
 RUN curl -L https://github.com/docker/machine/releases/download/v0.8.2/docker-machine-`uname -s`-`uname -m` > /usr/local/bin/docker-machine && \
@@ -23,12 +24,19 @@ RUN npm install --global andrewbranch/machine-share
 RUN /bin/bash -c "mkdir -p $HOME/.docker/machine/{machines,certs}"
 ENV WORKDIR /var/work
 ENV SCRIPTDIR /var/scripts
+ENV PATH $PATH:$SCRIPTDIR
 ENV MISCDIR /var/misc
 RUN mkdir -p $WORKDIR && mkdir -p $SCRIPTDIR
 WORKDIR $WORKDIR
-COPY functions.sh $MISCDIR/functions.sh
+
+# Install local npm dependencies
+COPY package.json $SCRIPTDIR/
+RUN cd $SCRIPTDIR && npm install
+
+# Copy all the things
+COPY functions.sh $MISCDIR/
 COPY update_compose_file.js $SCRIPTDIR/update_compose_file
-COPY .env $MISCDIR/.env
+COPY .env $MISCDIR/
 COPY *.key $MISCDIR/
 COPY github_rsa* $MISCDIR/
 
@@ -37,7 +45,7 @@ RUN cat $MISCDIR/.env >> $HOME/.bashrc && \
     cat $MISCDIR/functions.sh >> $HOME/.bashrc
 
 # Make scripts executable
-RUN chmod +x $SCRIPTDIR/* && PATH=$PATH:$SCRIPTDIR
+RUN chmod +x $SCRIPTDIR/*
 
 # Set up git
 RUN gpg --import $MISCDIR/*.key
