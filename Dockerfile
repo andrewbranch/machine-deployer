@@ -22,21 +22,26 @@ RUN npm install --global andrewbranch/machine-share
 
 RUN /bin/bash -c "mkdir -p $HOME/.docker/machine/{machines,certs}"
 ENV WORKDIR /var/work
-RUN mkdir -p $WORKDIR
+ENV SCRIPTDIR /var/scripts
+ENV MISCDIR /var/misc
+RUN mkdir -p $WORKDIR && mkdir -p $SCRIPTDIR
 WORKDIR $WORKDIR
-COPY functions.sh functions.sh
-COPY .env .env
-COPY *.key ./
-COPY github_rsa* ./
+COPY functions.sh $MISCDIR/functions.sh
+COPY update_compose_file.js $SCRIPTDIR/update_compose_file
+COPY .env $MISCDIR/.env
+COPY *.key $MISCDIR/
+COPY github_rsa* $MISCDIR/
 
 # Make environment and functions available in shell
-RUN cat .env >> $HOME/.bashrc && \
-    cat functions.sh >> $HOME/.bashrc && \
-    rm .env functions.sh
+RUN cat $MISCDIR/.env >> $HOME/.bashrc && \
+    cat $MISCDIR/functions.sh >> $HOME/.bashrc
+
+# Make scripts executable
+RUN chmod +x $SCRIPTDIR/* && PATH=$PATH:$SCRIPTDIR
 
 # Set up git
-RUN gpg --import *.key
-RUN eval `ssh-agent -s` && ssh-add github_rsa
+RUN gpg --import $MISCDIR/*.key
+RUN eval `ssh-agent -s` && ssh-add $MISCDIR/github_rsa
 RUN git config --global user.name "$GIT_NAME" && \
     git config --global user.email "$GIT_EMAIL" && \
     git config --global user.signingkey "$(echo `gpg --list-keys` | grep -o -E 'pub [^/]+/([A-F0-9]+)' | grep -o -E '[A-F0-9]+$')"
