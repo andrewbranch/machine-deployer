@@ -61,7 +61,7 @@ upgrade_definition() {
   git submodule update --recursive
   git checkout origin/$BRANCH
   
-  if [ $NPM_VERSION ] ; then
+  if [ $NPM_VERSION && -d package.json ] ; then
     npm version $NPM_VERSION
   fi
   
